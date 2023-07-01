@@ -13,6 +13,7 @@ pyarrow = "^12.0.1"
 networkx = "^3.1"
 plotly = "^5.15.0"
 scipy = "^1.11.0"
+tqdm = "^4.65.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "3.3.3"
@@ -68,7 +69,9 @@ ignore-paths = [
     "tests",
 ]
 
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+# Include the data files in the package
+include = ["cpilib/data/*.parquet"]

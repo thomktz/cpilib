@@ -56,7 +56,7 @@ class GraphDataFrame(pd.DataFrame):
             if max_depth:
                 mask = self.columns.str.startswith(node)
             else:
-                mask = self.columns.str.startswith(node) & (self.columns.str.len() == len(node) + 1)
+                mask = self.columns.str.startswith(node) & (self.columns.str.len() <= len(node) + 1)
             if strict:
                 mask = mask & (self.columns != node)
 
@@ -91,7 +91,7 @@ class CountryGraphDataFrame(pd.DataFrame):
             return self.xs(node, level=1, axis=1)
         return self[country, node]
 
-    def children(self, node, country, max_depth=False, strict=False):
+    def children(self, node, country, max_depth=False, strict=True):
         """
         Retrieve the children of a node for a specific country.
 
@@ -111,30 +111,7 @@ class CountryGraphDataFrame(pd.DataFrame):
         pd.DataFrame
             DataFrame containing the children of the node for the specified country.
         """
-        if node == "CP00":
-            if strict:
-                mask = self.columns.get_level_values(1).str.match("CP0[1-9]|CP1[0-2]") & (
-                    self.columns.get_level_values(0) == country
-                )
-            else:
-                mask = self.columns.get_level_values(1).str.match("CP00|CP0[1-9]|CP1[0-2]") & (
-                    self.columns.get_level_values(0) == country
-                )
-        else:
-            if max_depth:
-                mask = self.columns.get_level_values(1).str.startswith(node) & (
-                    self.columns.get_level_values(0) == country
-                )
-            else:
-                mask = (
-                    self.columns.get_level_values(1).str.startswith(node)
-                    & (self.columns.get_level_values(1).str.len() == len(node) + 1)
-                    & (self.columns.get_level_values(0) == country)
-                )
-            if strict:
-                mask = mask & (self.columns.get_level_values(1) != node)
-
-        return self.loc[:, mask]
+        return GraphDataFrame(self[country]).children(node, max_depth, strict)
 
 
 class CPI:
