@@ -1,18 +1,16 @@
 [tool.poetry]
 name = "cpilib"
-version = "0.1.0"
+version = "0.1.1"
 description = "Library for handling CPI data"
 authors = ["Thomas Kientz <thomas@kientz.net>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.9"
 pandas = "^2.0.2"
 pyarrow = "^12.0.1"
-networkx = "^3.1"
 plotly = "^5.15.0"
-scipy = "^1.11.0"
 tqdm = "^4.65.0"
 
 [tool.poetry.group.dev.dependencies]
