@@ -43,9 +43,9 @@ def download_url(url, filename, binary=False, unzip=False):
     unzip : bool, optional
         If True, unzip the downloaded file.
     """
-    if os.path.exists(filename) and file_age(filename) < 24:
-        print("Cached version exists and is less than a day old for", filename)
-        return
+    # if os.path.exists(filename) and file_age(filename) < 24:
+    #    # Cached version exists and is less than a day old
+    #    return
     try:
         with urllib.request.urlopen(url) as resp:
             if unzip:
@@ -61,8 +61,8 @@ def download_url(url, filename, binary=False, unzip=False):
 
         with open(filename, "wb" if binary else "w") as f:
             f.write(file_content)
-    except Exception as e:
-        print(e)
+    except Exception:
+        pass
 
 
 def get_eurostat_dictionary(dictionary, inverse=False):
@@ -97,8 +97,7 @@ def get_eurostat_dictionary(dictionary, inverse=False):
                     row = line.split("\t")
                     d[row[0]] = row[1].strip()
         return {v: k for k, v in d.items()} if inverse else d
-    except Exception as e:
-        print(e)
+    except Exception:
         return {}
 
 
