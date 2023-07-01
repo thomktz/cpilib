@@ -31,26 +31,22 @@ class HICP(CPICountries):
         return (
             data.replace(pd.NA, np.nan)
             .replace(": c", np.nan)
-            .apply(lambda x: x.str.rstrip(" d") if x.dtype == "object" else x)
-            .apply(lambda x: x.str.rstrip(" du") if x.dtype == "object" else x)
+            .applymap(lambda x: x.rstrip(" d") if isinstance(x, str) else x)
+            .applymap(lambda x: x.rstrip(" du") if isinstance(x, str) else x)
             .astype(float)
+            .sort_index(axis=0)
         )
 
     def _load_data(self):
         logger.info("Loading HICP object from Eurostat...")
         prices = get_eurostat_dataset("prc_hicp_midx")
-        prices = (
-            self.clean_dataframe(prices, date_format="%YM%m")["I15"]
-            .swaplevel(0, 1, axis=1)
-            .sort_index(axis=1)
-            .sort_index(axis=0)
-        )
+        prices = self.clean_dataframe(prices["I15"], date_format="%YM%m").swaplevel(0, 1, axis=1).sort_index(axis=1)
 
         item_weights = get_eurostat_dataset("prc_hicp_inw")
-        item_weights = self.clean_dataframe(item_weights).swaplevel(0, 1, axis=1).sort_index(axis=1).sort_index(axis=0)
+        item_weights = self.clean_dataframe(item_weights).swaplevel(0, 1, axis=1).sort_index(axis=1)
 
         country_weights = get_eurostat_dataset("prc_hicp_cow")
-        country_weights = self.clean_dataframe(country_weights)["COWEA19"].sort_index(axis=0)
+        country_weights = self.clean_dataframe(country_weights["COWEA19"])
 
         prices.to_parquet("cache/prices.parquet")
         item_weights.to_parquet("cache/item_weights.parquet")
