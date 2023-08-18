@@ -33,6 +33,7 @@ class HICP(CPICountries):
             .replace(": c", np.nan)
             .applymap(lambda x: x.rstrip(" d") if isinstance(x, str) else x)
             .applymap(lambda x: x.rstrip(" du") if isinstance(x, str) else x)
+            .applymap(lambda x: x.rstrip(" er") if isinstance(x, str) else x)
             .astype(float)
             .sort_index(axis=0)
         )
