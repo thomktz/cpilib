@@ -23,7 +23,16 @@ class HICP(CPICountries):
 
     @staticmethod
     def clean_dataframe(data: pd.DataFrame, date_format: str = None) -> pd.DataFrame:
-        """Helper function to clean up dataframe."""
+        """
+        Clean up a dataframe from Eurostat.
+        
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Dataframe to clean up.
+        date_format : str, optional
+            Format of the date index. If None, the index is converted to datetime automatically.
+        """
         if date_format is not None:
             data.index = pd.to_datetime(data.index, format=date_format)
         else:
@@ -39,6 +48,7 @@ class HICP(CPICountries):
         )
 
     def _load_data(self):
+        """Load data from Eurostat."""
         logger.info("Loading HICP object from Eurostat...")
         prices = get_eurostat_dataset("prc_hicp_midx")
         prices = self.clean_dataframe(prices["I15"], date_format="%YM%m").swaplevel(0, 1, axis=1).sort_index(axis=1)
@@ -56,26 +66,33 @@ class HICP(CPICountries):
         return prices, item_weights, country_weights
 
     @classmethod
-    def from_cache(cls, time_limit: float = None):
+    def from_cache(cls, time_limit: float = None, cache_folder: str = "./cache"):
         """
         Create a HICP object from cached data, if it exists and is not too old.
+        
         If no cached data is found or the cache is too old, creates a new object from the `__init__` method.
-        `time_limit` is the maximum age of the cache in days.
+        
+        Parameters
+        ----------
+        time_limit : float, optional
+            Time limit in days for how old the cache can be. If None, the cache is not checked.
+        cache_folder : str, optional
+            Path to the cache folder. Defaults to "./cache".
         """
-        cache_files = ["cache/prices.parquet", "cache/item_weights.parquet", "cache/country_weights.parquet"]
-        if all(os.path.exists(path) for path in cache_files):
+        cache_files = ["/prices.parquet", "/item_weights.parquet", "/country_weights.parquet"]
+        if all(os.path.exists(cache_folder + file) for file in cache_files):
             if time_limit is not None:
                 # Get the last modified times of the cache files
-                last_modified_times = [os.path.getmtime(path) for path in cache_files]
+                last_modified_times = [os.path.getmtime(cache_folder + file) for file in cache_files]
                 # If any of the cache files is older than the time limit, re-create the object
                 if max(last_modified_times) < time() - time_limit * 86400:  # Convert days to seconds
                     logger.info("Cache is older than the time limit. Re-creating HICP object...")
                     return cls()
 
             logger.info("Loading HICP object from cache...")
-            prices = pd.read_parquet(cache_files[0])
-            item_weights = pd.read_parquet(cache_files[1])
-            country_weights = pd.read_parquet(cache_files[2])
+            prices = pd.read_parquet(cache_folder + cache_files[0])
+            item_weights = pd.read_parquet(cache_folder + cache_files[1])
+            country_weights = pd.read_parquet(cache_folder + cache_files[2])
             return cls(prices, item_weights, country_weights)
 
         logger.info("Initializing HICP object...")

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cpilib"
-version = "0.2.2"
+version = "0.2.3"
 description = "Library for handling CPI data"
 authors = ["Thomas Kientz <thomas@kientz.net>"]
 license = "MIT"
