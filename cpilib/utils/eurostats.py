@@ -126,7 +126,7 @@ def get_eurostat_dataset(dataset, replace_codes=True, transpose=True, keep_codes
     """
     dataset = dataset.lower()
     filename = os.path.join("cache", f"{dataset}.tsv")
-    url = f"https://ec.europa.eu/eurostat/estat-navtree-portlet-prod/BulkDownloadListing?file=data/{dataset}.tsv.gz"
+    url = f"https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/{dataset}?format=TSV&compressed=true"
     download_url(url, filename, unzip=True)
 
     df = pd.read_csv(filename, sep=",|\t| [^ ]?\t", na_values=":", engine="python", dtype_backend="pyarrow")
